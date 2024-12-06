@@ -1,0 +1,130 @@
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DoctorFormPanel {
+    private JPanel panel;
+    private JTextField nameField, contactField, medicalIdField;
+    private JComboBox<String> specializationDropdown;
+    private JSpinner startTimeSpinner, endTimeSpinner;
+    private JButton saveButton, updateButton, clearButton;
+    private int selectedRow = -1;
+    private ActionListener actionListener;
+
+    public DoctorFormPanel() {
+        panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        panel.setBorder(new TitledBorder(
+                new LineBorder(new Color(70, 130, 180), 2, true),
+                "Add or Update Doctor",
+                TitledBorder.LEADING,
+                TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 16),
+                new Color(70, 130, 180)
+        ));
+        panel.setBackground(new Color(240, 248, 255));
+
+        // Form Components
+        panel.add(new JLabel("Name:"));
+        nameField = new JTextField();
+        panel.add(nameField);
+
+        panel.add(new JLabel("Contact:"));
+        contactField = new JTextField();
+        panel.add(contactField);
+
+        panel.add(new JLabel("Medical ID:"));
+        medicalIdField = new JTextField();
+        panel.add(medicalIdField);
+
+        panel.add(new JLabel("Specialization:"));
+        specializationDropdown = new JComboBox<>(new String[]{"Cardiology", "Neurology", "Orthopedics"});
+        panel.add(specializationDropdown);
+
+        panel.add(new JLabel("Start Time:"));
+        startTimeSpinner = createTimeSpinner();
+        panel.add(startTimeSpinner);
+
+        panel.add(new JLabel("End Time:"));
+        endTimeSpinner = createTimeSpinner();
+        panel.add(endTimeSpinner);
+
+        // Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        saveButton = createButton("Save", new Color(50, 205, 50)); // Lime Green
+        updateButton = createButton("Update", new Color(255, 215, 0)); // Gold
+        clearButton = createButton("Clear", new Color(220, 20, 60)); // Crimson
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(clearButton);
+
+        // Add button panel to the form panel
+        panel.add(buttonPanel);
+
+        // Button Actions
+        saveButton.addActionListener(e -> handleSave(false));
+        updateButton.addActionListener(e -> handleSave(true));
+        clearButton.addActionListener(e -> clearForm());
+    }
+
+    private JButton createButton(String text, Color color) {
+        JButton button = new JButton(text);
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+        return button;
+    }
+
+    private JSpinner createTimeSpinner() {
+        JSpinner spinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(spinner, "hh:mm a");
+        spinner.setEditor(timeEditor);
+        spinner.setValue(new Date()); // Default value is the current time
+        return spinner;
+    }
+
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    public void setActionListener(ActionListener listener) {
+        this.actionListener = listener;
+    }
+
+    public void clearForm() {
+        nameField.setText("");
+        contactField.setText("");
+        medicalIdField.setText("");
+        specializationDropdown.setSelectedIndex(0);
+        startTimeSpinner.setValue(new Date());
+        endTimeSpinner.setValue(new Date());
+        selectedRow = -1;
+    }
+
+    private void handleSave(boolean isUpdate) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        String startTime = timeFormat.format(startTimeSpinner.getValue());
+        String endTime = timeFormat.format(endTimeSpinner.getValue());
+
+        Doctor doctor = new Doctor(
+                nameField.getText(),
+                contactField.getText(),
+                medicalIdField.getText(),
+                specializationDropdown.getSelectedItem().toString(),
+                startTime,
+                endTime
+        );
+
+        if (actionListener != null) {
+            actionListener.actionPerformed(new ActionEvent(doctor, selectedRow, isUpdate ? "Update" : "Save"));
+        }
+    }
+
+    public int getSelectedRow() {
+        return selectedRow;
+    }
+}

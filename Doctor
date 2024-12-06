@@ -1,0 +1,27 @@
+public class Doctor {
+    private String name;
+    private String contact;
+    private String medicalId;
+    private String specialization;
+    private String workingHours;
+
+    public Doctor(String name, String contact, String medicalId, String specialization, String startTime, String endTime) {
+        this.name = name;
+        this.contact = contact;
+        this.medicalId = medicalId;
+        this.specialization = specialization;
+        this.workingHours = startTime + " - " + endTime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public String getWorkingHours() {
+        return workingHours;
+    }
+}

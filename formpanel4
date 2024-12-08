@@ -1,0 +1,164 @@
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DoctorFormPanel {
+    private JPanel panel;
+    private JTextField nameField, contactField, medicalIdField;
+    private JComboBox<String> specializationDropdown;
+    private JSpinner startTimeSpinner, endTimeSpinner;
+    private JButton saveButton, clearButton;
+    private int selectedRow = -1;
+    private ActionListener actionListener;
+
+    public DoctorFormPanel() {
+        panel = new JPanel(new GridBagLayout());
+        panel.setBorder(new TitledBorder(
+                new LineBorder(new Color(70, 130, 180), 2, true),
+                "Add or Update Doctor",
+                TitledBorder.LEADING,
+                TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 16),
+                new Color(70, 130, 180)
+        ));
+        panel.setBackground(new Color(240, 248, 255));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 10, 5, 10); // Add padding around components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Remove blank space above the first field by adjusting weighty
+        gbc.weighty = 0; // No extra space at the top
+
+        // Row 1: Name
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel("Name:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        nameField = new JTextField();
+        panel.add(nameField, gbc);
+
+        // Row 2: Contact
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel("Contact:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        contactField = new JTextField();
+        panel.add(contactField, gbc);
+
+        // Row 3: Medical ID
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel("Medical ID:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        medicalIdField = new JTextField();
+        panel.add(medicalIdField, gbc);
+
+        // Row 4: Specialization
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel("Specialization:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        specializationDropdown = new JComboBox<>(new String[]{"Cardiology", "Neurology", "Orthopedics"});
+        panel.add(specializationDropdown, gbc);
+
+        // Row 5: Start Time
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel("Start Time:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        startTimeSpinner = createTimeSpinner();
+        panel.add(startTimeSpinner, gbc);
+
+        // Row 6: End Time
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel("End Time:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        endTimeSpinner = createTimeSpinner();
+        panel.add(endTimeSpinner, gbc);
+
+        // Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        saveButton = new JButton("Save");
+        clearButton = new JButton("Clear");
+        buttonPanel.add(saveButton);
+        buttonPanel.add(clearButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(buttonPanel, gbc);
+    }
+
+    private JSpinner createTimeSpinner() {
+        JSpinner spinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(spinner, "hh:mm a");
+        spinner.setEditor(timeEditor);
+        spinner.setValue(new Date()); // Default value is the current time
+        return spinner;
+    }
+
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    public void setActionListener(ActionListener listener) {
+        this.actionListener = listener;
+    }
+
+    public void clearForm() {
+        nameField.setText("");
+        contactField.setText("");
+        medicalIdField.setText("");
+        specializationDropdown.setSelectedIndex(0);
+        startTimeSpinner.setValue(new Date());
+        endTimeSpinner.setValue(new Date());
+        selectedRow = -1;
+    }
+
+    private void handleSave(boolean isUpdate) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        String startTime = timeFormat.format(startTimeSpinner.getValue());
+        String endTime = timeFormat.format(endTimeSpinner.getValue());
+
+        Doctor doctor = new Doctor(
+                nameField.getText(),
+                contactField.getText(),
+                medicalIdField.getText(),
+                specializationDropdown.getSelectedItem().toString(),
+                startTime,
+                endTime
+        );
+
+        if (actionListener != null) {
+            actionListener.actionPerformed(new ActionEvent(doctor, selectedRow, isUpdate ? "Update" : "Save"));
+        }
+    }
+
+    public int getSelectedRow() {
+        return selectedRow;
+    }
+}
